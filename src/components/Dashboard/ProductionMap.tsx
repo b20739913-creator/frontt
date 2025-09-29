@@ -21,19 +21,22 @@ Icon.Default.mergeOptions({
 });
 
 // Custom marker icons: now a simple filled circle (no text)
-const createCustomIcon = (color: string) => {
-  const size = 18; // diameter in px
-  const radius = size / 2;
+const createCustomIcon = (isOnline: boolean) => {
+  const size = 24; // size in px
+  const color = isOnline ? '#17F083' : '#EC4899'; // green for online, pink for offline
+  
+  // Using ion--location-sharp SVG with dynamic color
   const svg = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
-      <circle cx="${radius}" cy="${radius}" r="${radius}" fill="${color}" />
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">
+      <path fill="${color}" d="M256 32C167.67 32 96 96.51 96 176c0 128 160 304 160 304s160-176 160-304c0-79.49-71.67-144-160-144zm0 224a64 64 0 1 1 64-64 64.07 64.07 0 0 1-64 64z"/>
     </svg>
   `;
+  
   return new Icon({
     iconUrl: `data:image/svg+xml;base64,${btoa(svg)}`,
-    iconSize: [size, size],
-    iconAnchor: [radius, radius], // center anchor so it sits exactly on coords
-    popupAnchor: [0, -radius - 6], // show popup above the circle
+    iconSize: [size, size + 4], // slightly taller for the location pin shape
+    iconAnchor: [size / 2, size + 2], // anchor at bottom center of the pin
+    popupAnchor: [0, -(size + 6)], // show popup above the pin
     className: '', // no extra classes
   });
 };
@@ -284,7 +287,9 @@ const ProductionMap: React.FC<ProductionMapProps> = ({ selectedHierarchy, select
         </h2>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#17F083]"></div>
+            <svg width="16" height="16" viewBox="0 0 512 512" className="inline-block">
+              <path fill="#17F083" d="M256 32C167.67 32 96 96.51 96 176c0 128 160 304 160 304s160-176 160-304c0-79.49-71.67-144-160-144zm0 224a64 64 0 1 1 64-64 64.07 64.07 0 0 1-64 64z"/>
+            </svg>
             <span className={`text-base ${
               theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
             }`}>
@@ -292,7 +297,9 @@ const ProductionMap: React.FC<ProductionMapProps> = ({ selectedHierarchy, select
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-[#EC4899]"></div>
+            <svg width="16" height="16" viewBox="0 0 512 512" className="inline-block">
+              <path fill="#EC4899" d="M256 32C167.67 32 96 96.51 96 176c0 128 160 304 160 304s160-176 160-304c0-79.49-71.67-144-160-144zm0 224a64 64 0 1 1 64-64 64.07 64.07 0 0 1-64 64z"/>
+            </svg>
             <span className={`text-base ${
               theme === 'dark' ? 'text-gray-400' : 'text-gray-600'
             }`}>
@@ -351,7 +358,7 @@ const ProductionMap: React.FC<ProductionMapProps> = ({ selectedHierarchy, select
                 <Marker
                   key={device.deviceId}
                   position={[device.location.latitude!, device.location.longitude!]}
-                  icon={createCustomIcon(device.status === 'Online' ? '#17F083' : '#EC4899')}
+                  icon={createCustomIcon(device.status === 'Online')}
                   ref={(ref) => {
                     if (ref) {
                       markerRefs.current[device.deviceId] = ref;
